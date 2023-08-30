@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  node-app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - OTEL_SERVICE_NAME=servico-node
+      - OTEL_TRACES_EXPORTER=otlp 
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+      - PG_USER=postgres
+      - PG_PASSWORD=senhafacil
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_DATABASE=postgres
+    depends_on:
+      - db
+      - otel-collector
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=senhafacil
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP receiver
+      - "8888:8888" # Health check
+      - "1234:1234" # Prometheus endpoint
+
+volumes:
+  pgdata:

@@ -1,0 +1,30 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+
+exporters:
+  logging:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+
+# exporter:
+#   prometheus:
+#     endpoint: https://prometheus-prod-25-prod-sa-east-0.grafana.net/api/prom
+#   otlp:
+#     endpoint: https://tempo-prod-12-prod-sa-east-0.grafana.net/v1/trace
+#     headers:
+#       Authorization: Bearer eyJrIjoiYTdhZmViYjNkY2Y2Mzg4MWNjZjhhZTFlYmJkMzQ2ZmU5YzRlYWFlNiIsIm4iOiJ0ZW1wbyIsImlkIjo4ODU2Mjd9
+#   grafana:
+#     endpoint: https://prometheus-prod-25-prod-sa-east-0.grafana.net/api/prom/push
+#     headers:
+#       Authorization: Basic MTA1NTM5OTpleUp6YVdRaU9pSXlNamhqZlE9PQ==
