@@ -31,7 +31,6 @@ Depois de lançar sua instância:
 2. Use o SSH para se conectar:
     
     ```sql
-    sqlCopy code
     ssh ec2-user@YOUR_EC2_IP_ADDRESS -i path_to_your_key.pem
     
     ```
@@ -42,7 +41,6 @@ Depois de lançar sua instância:
 Execute os comandos a seguir:
 
 ```bash
-bashCopy code
 curl --location https://github.com/aws-observability/aws-otel-collector/releases/latest/download/aws-otel-collector-x86_64.rpm -o aws-otel-collector.rpm
 sudo rpm -Uvh aws-otel-collector.rpm
 
@@ -52,8 +50,7 @@ sudo rpm -Uvh aws-otel-collector.rpm
 
 1. Copie seu arquivo **`config.yaml`** para a instância EC2 (use **`scp`** ou outro método de sua preferência):
     
-    ```ruby
-    rubyCopy code
+    ```bash
     scp -i path_to_your_key.pem config.yaml ec2-user@YOUR_EC2_IP_ADDRESS:~/
     
     ```
@@ -61,7 +58,6 @@ sudo rpm -Uvh aws-otel-collector.rpm
 2. Mova o arquivo de configuração para o diretório apropriado na EC2:
     
     ```bash
-    bashCopy code
     sudo mv config.yaml /etc/otel-collector/config.yaml
     
     ```
@@ -70,7 +66,6 @@ sudo rpm -Uvh aws-otel-collector.rpm
 ### **🔄 Passo 6: Inicie o AWS OpenTelemetry Collector**
 
 ```bash
-bashCopy code
 sudo systemctl start aws-otel-collector
 sudo systemctl enable aws-otel-collector
 
@@ -79,7 +74,6 @@ sudo systemctl enable aws-otel-collector
 ### **✅ Passo 7: Verifique o status**
 
 ```bash
-bashCopy code
 sudo systemctl status aws-otel-collector
 
 ```
@@ -87,7 +81,6 @@ sudo systemctl status aws-otel-collector
 ### **📜 Passo 8: Monitore os logs**
 
 ```bash
-bashCopy code
 sudo tail -f /var/log/aws-otel-collector/collector.log
 
 ```
