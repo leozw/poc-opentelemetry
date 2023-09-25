@@ -1,0 +1,26 @@
+FROM eclipse-temurin:17-jdk-jammy as base
+WORKDIR /app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:resolve
+COPY src ./src
+
+# Development Stage
+FROM base as development
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=mysql", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000'"]
+
+# Build Stage
+FROM base as build
+RUN ./mvnw package
+
+# Production Stage
+FROM eclipse-temurin:17-jre-jammy as production
+EXPOSE 8080
+ADD https://github.com/aws-observability/aws-otel-java-instrumentation/releases/latest/download/aws-opentelemetry-agent.jar /opt/aws-opentelemetry-agent.jar
+ENV JAVA_TOOL_OPTIONS=-javaagent:/opt/aws-opentelemetry-agent.jar
+ENV OTEL_SERVICE_NAME='spring'
+ENV OTEL_TRACES_EXPORTER=otlp 
+ENV OTEL_METRICS_EXPORTER=otlp      
+#ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://<ENDEREÇO_DO_COLLECTOR_NA_AWS>:4317"
+COPY --from=build /app/target/spring-petclinic-*.jar /spring-petclinic.jar
+CMD ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/spring-petclinic.jar"]
